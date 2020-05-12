@@ -11,39 +11,35 @@ using Volo.Abp.Domain.Repositories;
 namespace Acme.BookStore
 {
     public class TestAppService : ApplicationService
-    {       
+    {
         private readonly IBackgroundJobManager _backgroundJobManager;
-        private readonly IRepository<Book, Guid> _bookRepository; 
+        private readonly IRepository<Book, Guid> _bookRepository;
 
-        public TestAppService(IBackgroundJobManager backgroundJobManager,
-             IRepository<Book, Guid> bookRepository)
+        public TestAppService(
+                    IBackgroundJobManager backgroundJobManager,
+                    IRepository<Book, Guid> bookRepository)
         {
             _backgroundJobManager = backgroundJobManager;
             _bookRepository = bookRepository;
         }
 
-        public async Task CreateBackgroundJob(string userName, string emailAddress, string password)
+        public async Task CreateBackgroundJob(string body)
         {
             var args = new EmailSendingArgs
             {
-                EmailAddress = emailAddress,
-                Subject = "You've successfully registered!",
-                Body = "..."
+                Subject = "Created by background task",
+                Body = body
             };
-
             await _backgroundJobManager.EnqueueAsync(args);
         }
-        public async Task ExecuteJobDirect(string userName, string emailAddress, string password)
+        public async Task ExecuteJobDirect(string body)
         {
-           
             var args = new EmailSendingArgs
-            {
-                EmailAddress = emailAddress,
-                Subject = "You've successfully registered!",
-                Body = "..."
+            {                
+                Subject = "Directly executed",
+                Body = body
             };
-            EmailSendingJob job = new EmailSendingJob();
-            job.BookRepository = _bookRepository;
+            EmailSendingJob job = new EmailSendingJob(_bookRepository);
             await job.ExecuteAsync(args);
         }
     }

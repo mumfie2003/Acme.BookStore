@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Volo.Abp.BackgroundJobs;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.Uow;
 
 namespace Acme.BookStore.Test
 {
@@ -20,7 +21,9 @@ namespace Acme.BookStore.Test
         {
             _bookRepository = bookRepository;
         }
-
+        //PRB: if UnitOfWork not specified backgrouun task fails
+        //but direct via app service works
+        [UnitOfWork]
         public override async Task ExecuteAsync(EmailSendingArgs args)
         {
             const string MODULE = "ExecuteAsync";
@@ -29,7 +32,7 @@ namespace Acme.BookStore.Test
                 try
                 {
                     sw.WriteLine();
-                    sw.WriteLine($"{MODULE} {DateTime.Now.TimeOfDay}   body:{args.Body}");
+                    sw.WriteLine($"{MODULE} {DateTime.Now.TimeOfDay} subject:{args.Subject}  body:{args.Body}");
                     var books = await _bookRepository
                                     .Where(p => p.Price > 0)
                                     .ToListAsync();

@@ -33,7 +33,7 @@ namespace Acme.BookStore
 
             await _backgroundJobManager.EnqueueAsync(args);
         }
-        public void ExecuteJobDirect(string userName, string emailAddress, string password)
+        public async Task ExecuteJobDirect(string userName, string emailAddress, string password)
         {
            
             var args = new EmailSendingArgs
@@ -44,7 +44,7 @@ namespace Acme.BookStore
             };
             EmailSendingJob job = new EmailSendingJob();
             job.BookRepository = _bookRepository;
-            job.Execute(args);
+            await job.ExecuteAsync(args);
         }
     }
 }

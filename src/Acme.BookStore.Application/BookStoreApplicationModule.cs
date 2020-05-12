@@ -6,6 +6,7 @@ using Volo.Abp.Modularity;
 using Volo.Abp.PermissionManagement;
 using Volo.Abp.TenantManagement;
 using Volo.Abp.BackgroundJobs;
+using Volo.Abp.EntityFrameworkCore.SqlServer;
 
 namespace Acme.BookStore
 {
@@ -19,6 +20,7 @@ namespace Acme.BookStore
         typeof(AbpFeatureManagementApplicationModule)
         )]
     [DependsOn(typeof(AbpBackgroundJobsModule))]
+    [DependsOn(typeof(AbpEntityFrameworkCoreSqlServerModule))]
     public class BookStoreApplicationModule : AbpModule
     {
         public override void ConfigureServices(ServiceConfigurationContext context)

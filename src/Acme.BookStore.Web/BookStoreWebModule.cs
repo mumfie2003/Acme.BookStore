@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using Localization.Resources.AbpUi;
 using Microsoft.AspNetCore;
@@ -36,6 +36,8 @@ using Volo.Abp.UI.Navigation.Urls;
 using Volo.Abp.UI;
 using Volo.Abp.UI.Navigation;
 using Volo.Abp.VirtualFileSystem;
+using Volo.Abp.BackgroundJobs.Hangfire;
+using Hangfire;
 
 namespace Acme.BookStore.Web
 {
@@ -51,6 +53,7 @@ namespace Acme.BookStore.Web
         typeof(AbpTenantManagementWebModule),
         typeof(AbpAspNetCoreSerilogModule)
         )]
+    [DependsOn(typeof(AbpBackgroundJobsHangfireModule))]
     public class BookStoreWebModule : AbpModule
     {
         public override void PreConfigureServices(ServiceConfigurationContext context)
@@ -81,8 +84,16 @@ namespace Acme.BookStore.Web
             ConfigureNavigationServices();
             ConfigureAutoApiControllers();
             ConfigureSwaggerServices(context.Services);
+            //CM01
+            ConfigureHangfire(context, configuration);
         }
-
+        private void ConfigureHangfire(ServiceConfigurationContext context, IConfiguration configuration)
+        {
+            context.Services.AddHangfire(config =>
+            {
+                config.UseSqlServerStorage(configuration.GetConnectionString("Default"));
+            });
+        }
         private void ConfigureUrls(IConfiguration configuration)
         {
             Configure<AppUrlOptions>(options =>
@@ -206,6 +217,9 @@ namespace Acme.BookStore.Web
             {
                 options.SwaggerEndpoint("/swagger/v1/swagger.json", "BookStore API");
             });
+            //CM01
+            app.UseHangfireServer();
+            app.UseHangfireDashboard();
             app.UseAuditing();
             app.UseAbpSerilogEnrichers();
             app.UseMvcWithDefaultRouteAndArea();
